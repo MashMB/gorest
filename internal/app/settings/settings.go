@@ -14,8 +14,15 @@ type server struct {
 	Port string `yaml:"port"`
 }
 
+type authorization struct {
+	Enabled bool   `yaml:"enabled"`
+	Header  string `yaml:"header"`
+	Key     string `yaml:"key"`
+}
+
 type Settings struct {
-	Server server `yaml:"server"`
+	Server        server        `yaml:"server"`
+	Authorization authorization `yaml:"authorization"`
 }
 
 var loadedSettings *Settings
@@ -25,6 +32,11 @@ func defaultSettings() *Settings {
 		Server: server{
 			Host: "0.0.0.0",
 			Port: "8080",
+		},
+		Authorization: authorization{
+			Enabled: false,
+			Header:  "Api-Key",
+			Key:     "",
 		},
 	}
 }

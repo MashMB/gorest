@@ -22,6 +22,7 @@ func NewServer(stg settings.Settings) *server {
 func (s *server) middlewares() middleware {
 	return middlewaresChain(
 		logRequestAndResponseMiddleware,
+		authorizationMiddleware(s.settings),
 	)
 }
 

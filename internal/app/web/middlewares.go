@@ -7,6 +7,9 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/mashmb/gorest/internal/app/handlers"
+	"github.com/mashmb/gorest/internal/app/settings"
+	"github.com/mashmb/gorest/internal/app/types"
 )
 
 type middleware func(http.Handler) http.HandlerFunc
@@ -18,6 +21,23 @@ func middlewaresChain(mid ...middleware) middleware {
 		}
 
 		return nxt.ServeHTTP
+	}
+}
+
+func authorizationMiddleware(stg settings.Settings) middleware {
+	return func(nxt http.Handler) http.HandlerFunc {
+		return func(res http.ResponseWriter, req *http.Request) {
+			if stg.Authorization.Enabled {
+				key := req.Header.Get(stg.Authorization.Header)
+
+				if key != stg.Authorization.Key {
+					handlers.HandleError(types.NewApiError(401, "Unauthorized"), res)
+					return
+				}
+			}
+
+			nxt.ServeHTTP(res, req)
+		}
 	}
 }
 
