@@ -1,8 +1,12 @@
 package main
 
-import "github.com/mashmb/gorest/internal/app/web"
+import (
+	"github.com/mashmb/gorest/internal/app/settings"
+	"github.com/mashmb/gorest/internal/app/web"
+)
 
 func main() {
-	server := web.NewServer()
+	settings := settings.LoadSettings()
+	server := web.NewServer(settings)
 	server.Run()
 }

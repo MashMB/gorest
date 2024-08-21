@@ -4,17 +4,22 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+
+	"github.com/mashmb/gorest/internal/app/settings"
 )
 
 type server struct {
+	settings settings.Settings
 }
 
-func NewServer() *server {
-	return &server{}
+func NewServer(stg settings.Settings) *server {
+	return &server{
+		settings: stg,
+	}
 }
 
 func (s *server) Run() {
-	addr := fmt.Sprintf("%s:%s", "0.0.0.0", "8080")
+	addr := fmt.Sprintf("%s:%s", s.settings.Server.Host, s.settings.Server.Port)
 	server := &http.Server{
 		Addr: addr,
 	}
