@@ -19,6 +19,12 @@ func NewServer(stg settings.Settings) *server {
 	}
 }
 
+func (s *server) middlewares() middleware {
+	return middlewaresChain(
+		logRequestAndResponseMiddleware,
+	)
+}
+
 func (s *server) routes(rtr *http.ServeMux) {
 	rtr.HandleFunc("GET /hello", handlers.Hello)
 }
@@ -29,7 +35,7 @@ func (s *server) Run() {
 	s.routes(router)
 	server := &http.Server{
 		Addr:    addr,
-		Handler: router,
+		Handler: s.middlewares()(router),
 	}
 	slog.Info("HTTP server started", "addr", addr)
 	server.ListenAndServe()
