@@ -1,13 +1,21 @@
 package settings
 
 import (
+	"io"
 	"log/slog"
 	"os"
 
+	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v3"
 )
 
 var paths = [2]string{"./app.yml", "./configs/app.yml"}
+
+type log struct {
+	FileEnabled bool `yaml:"file-enabled"`
+	MaxSize     int  `yaml:"max-size"`
+	MaxAge      int  `yaml:"max-age"`
+}
 
 type server struct {
 	Host string `yaml:"host"`
@@ -21,6 +29,7 @@ type authorization struct {
 }
 
 type Settings struct {
+	Log           log           `yaml:"log"`
 	Server        server        `yaml:"server"`
 	Authorization authorization `yaml:"authorization"`
 }
@@ -29,6 +38,11 @@ var loadedSettings *Settings
 
 func defaultSettings() *Settings {
 	return &Settings{
+		Log: log{
+			FileEnabled: false,
+			MaxSize:     10,
+			MaxAge:      30,
+		},
 		Server: server{
 			Host: "0.0.0.0",
 			Port: "8080",
@@ -39,6 +53,30 @@ func defaultSettings() *Settings {
 			Key:     "",
 		},
 	}
+}
+
+func (s *Settings) configureLogger() {
+	var handler *slog.TextHandler
+
+	if s.Log.FileEnabled {
+		logFile := &lumberjack.Logger{
+			Filename:  "./logs/app.log",
+			MaxSize:   s.Log.MaxSize,
+			MaxAge:    s.Log.MaxAge,
+			LocalTime: true,
+		}
+		multiWriter := io.MultiWriter(os.Stdout, logFile)
+		handler = slog.NewTextHandler(multiWriter, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		})
+	} else {
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		})
+	}
+
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
 }
 
 func LoadSettings() Settings {
@@ -70,6 +108,8 @@ func LoadSettings() Settings {
 			os.Exit(1)
 		}
 	}
+
+	loadedSettings.configureLogger()
 
 	return *loadedSettings
 }
