@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/mashmb/gorest/internal/app/handlers"
 	"github.com/mashmb/gorest/internal/app/settings"
 )
 
@@ -18,10 +19,17 @@ func NewServer(stg settings.Settings) *server {
 	}
 }
 
+func (s *server) routes(rtr *http.ServeMux) {
+	rtr.HandleFunc("GET /hello", handlers.Hello)
+}
+
 func (s *server) Run() {
 	addr := fmt.Sprintf("%s:%s", s.settings.Server.Host, s.settings.Server.Port)
+	router := http.NewServeMux()
+	s.routes(router)
 	server := &http.Server{
-		Addr: addr,
+		Addr:    addr,
+		Handler: router,
 	}
 	slog.Info("HTTP server started", "addr", addr)
 	server.ListenAndServe()
