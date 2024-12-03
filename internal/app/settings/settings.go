@@ -96,6 +96,7 @@ func LoadSettings() Settings {
 			slog.Warn("Settings not found", "path", path)
 		} else {
 			slog.Info("Settings found", "path", path)
+			break
 		}
 	}
 
