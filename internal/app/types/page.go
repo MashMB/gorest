@@ -11,6 +11,7 @@ type PageDto struct {
 	Page    int           `json:"page"`
 	Pages   int           `json:"pages"`
 	Size    int           `json:"size"`
+	Records int           `json:"records"`
 	Content []PageContent `json:"content"`
 }
 
@@ -19,6 +20,7 @@ func NewPageDto(pagination Pagination, content []PageContent) PageDto {
 		Page:    pagination.Page,
 		Pages:   pagination.Pages,
 		Size:    pagination.Size,
+		Records: pagination.Records,
 		Content: content,
 	}
 }
@@ -28,11 +30,12 @@ func EmptyPageDto() PageDto {
 }
 
 type Pagination struct {
-	Page   int
-	Pages  int
-	Size   int
-	Limit  int
-	Offset int
+	Page    int
+	Pages   int
+	Size    int
+	Records int
+	Limit   int
+	Offset  int
 }
 
 func NewPagination(page, size, all int) Pagination {
@@ -47,11 +50,12 @@ func NewPagination(page, size, all int) Pagination {
 	}
 
 	return Pagination{
-		Page:   page,
-		Pages:  pages,
-		Size:   size,
-		Limit:  size,
-		Offset: (page - 1) * size,
+		Page:    page,
+		Pages:   pages,
+		Size:    size,
+		Records: all,
+		Limit:   size,
+		Offset:  (page - 1) * size,
 	}
 }
 
